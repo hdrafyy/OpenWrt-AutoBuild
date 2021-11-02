@@ -76,18 +76,26 @@ touch ./.config
 # 无论你想要对固件进行怎样的定制, 都需要且只需要修改 EOF 回环内的内容.
 # 
 
-# 编译x64固件:
+# 编译x32固件:
 cat >> .config <<EOF
 CONFIG_TARGET_x86=y
-CONFIG_TARGET_x86_64=y
-CONFIG_TARGET_x86_64_Generic=y
+CONFIG_TARGET_x86_generic=y
+CONFIG_TARGET_x86_generic_DEVICE_generic=y
+CONFIG_TARGET_ROOTFS_TARGZ=y
+CONFIG_TARGET_ROOTFS_SQUASHFS=y
+CONFIG_TARGET_KERNEL_PARTSIZE=64
+CONFIG_TARGET_ROOTFS_PARTSIZE=1200
+CONFIG_GRUB_IMAGES=y
+CONFIG_GRUB_EFI_IMAGES=y
+CONFIG_VDI_IMAGES=y
+CONFIG_VMDK_IMAGES=y
 EOF
 
 # 设置固件大小:
-cat >> .config <<EOF
-CONFIG_TARGET_KERNEL_PARTSIZE=16
-CONFIG_TARGET_ROOTFS_PARTSIZE=160
-EOF
+# cat >> .config <<EOF
+# CONFIG_TARGET_KERNEL_PARTSIZE=16
+# CONFIG_TARGET_ROOTFS_PARTSIZE=160
+# EOF
 
 # 固件压缩:
 cat >> .config <<EOF
@@ -95,14 +103,14 @@ CONFIG_TARGET_IMAGES_GZIP=y
 EOF
 
 # 编译UEFI固件:
-cat >> .config <<EOF
-CONFIG_EFI_IMAGES=y
-EOF
+# cat >> .config <<EOF
+# CONFIG_EFI_IMAGES=y
+# EOF
 
-# IPv6支持:
+# 网卡驱动:
 cat >> .config <<EOF
-CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
-CONFIG_PACKAGE_ipv6helper=y
+CONFIG_PACKAGE_kmod-r8169=y
+CONFIG_PACKAGE_kmod-phy-realtek=y
 EOF
 
 # 编译PVE/KVM、Hyper-V、VMware镜像以及镜像填充
