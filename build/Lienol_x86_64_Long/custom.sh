@@ -115,8 +115,10 @@ EOF
 
 # 网卡驱动:
 cat >> .config <<EOF
-CONFIG_PACKAGE_kmod-r8169=y
 CONFIG_PACKAGE_kmod-phy-realtek=y
+CONFIG_PACKAGE_kmod-r8169=y
+CONFIG_PACKAGE_kmod-rtl8187SE=y
+CONFIG_PACKAGE_luci-app-arpbind=y #单软路由需要添加,双软路由不需要
 EOF
 
 # 编译PVE/KVM、Hyper-V、VMware镜像以及镜像填充
