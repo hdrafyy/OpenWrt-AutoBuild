@@ -143,11 +143,11 @@ EOF
 # EOF
 
 # 多线多拨:
-cat >> .config <<EOF
-CONFIG_PACKAGE_luci-app-syncdial=y #多拨虚拟WAN
-CONFIG_PACKAGE_luci-app-mwan3=y #MWAN负载均衡
-CONFIG_PACKAGE_luci-app-mwan3helper=y #MWAN3分流助手
-EOF
+# cat >> .config <<EOF
+# CONFIG_PACKAGE_luci-app-syncdial=y #多拨虚拟WAN
+# CONFIG_PACKAGE_luci-app-mwan3=y #MWAN负载均衡
+# CONFIG_PACKAGE_luci-app-mwan3helper=n #MWAN3分流助手
+# EOF
 
 # 第三方插件选择:
 cat >> .config <<EOF
@@ -156,15 +156,15 @@ CONFIG_PACKAGE_luci-app-openclash=y #OpenClash客户端
 CONFIG_PACKAGE_luci-app-store=y #应用商店
 CONFIG_PACKAGE_luci-app-serverchan=y #微信推送
 CONFIG_PACKAGE_luci-app-eqos=y #IP限速
-CONFIG_PACKAGE_luci-app-control-weburl=y #网址过滤
-CONFIG_PACKAGE_luci-app-smartdns=y #smartdns服务器
-CONFIG_PACKAGE_luci-app-adguardhome=y #ADguardhome
+# CONFIG_PACKAGE_luci-app-control-weburl=y #网址过滤
+# CONFIG_PACKAGE_luci-app-smartdns=y #smartdns服务器
+# CONFIG_PACKAGE_luci-app-adguardhome=y #ADguardhome
 CONFIG_PACKAGE_luci-app-poweroff=y #关机（增加关机功能）
-CONFIG_PACKAGE_luci-app-argon-config=y #argon主题设置
+# CONFIG_PACKAGE_luci-app-argon-config=y #argon主题设置
 CONFIG_PACKAGE_luci-theme-atmaterial_new=y #atmaterial 三合一主题
 CONFIG_PACKAGE_luci-app-autotimeset=y #定时重启系统，网络
-CONFIG_PACKAGE_luci-app-ddnsto=y #小宝开发的DDNS.to内网穿透
-CONFIG_PACKAGE_ddnsto=y #DDNS.to内网穿透软件包
+# CONFIG_PACKAGE_luci-app-ddnsto=y #小宝开发的DDNS.to内网穿透
+# CONFIG_PACKAGE_ddnsto=y #DDNS.to内网穿透软件包
 EOF
 
 # ShadowsocksR插件:
@@ -196,7 +196,7 @@ EOF
 cat >> .config <<EOF
 CONFIG_PACKAGE_luci-app-adbyby-plus=y #adbyby去广告
 CONFIG_PACKAGE_luci-app-webadmin=y #Web管理页面设置
-CONFIG_PACKAGE_luci-app-ddns=y #DDNS服务
+CONFIG_PACKAGE_luci-app-ddns=n #DDNS服务
 CONFIG_DEFAULT_luci-app-vlmcsd=y #KMS激活服务器
 CONFIG_PACKAGE_luci-app-filetransfer=y #系统-文件传输
 CONFIG_PACKAGE_luci-app-autoreboot=y #定时重启
@@ -204,40 +204,40 @@ CONFIG_PACKAGE_luci-app-upnp=y #通用即插即用UPnP(端口自动转发)
 CONFIG_PACKAGE_luci-app-accesscontrol=y #上网时间控制
 CONFIG_PACKAGE_luci-app-wol=y #网络唤醒
 CONFIG_PACKAGE_luci-app-nps=y #nps内网穿透
-CONFIG_PACKAGE_luci-app-frpc=y #Frp内网穿透
+CONFIG_PACKAGE_luci-app-frpc=n #Frp内网穿透
 CONFIG_PACKAGE_luci-app-nlbwmon=y #宽带流量监控
 CONFIG_PACKAGE_luci-app-wrtbwmon=y #实时流量监测
-CONFIG_PACKAGE_luci-app-haproxy-tcp=y #Haproxy负载均衡
-CONFIG_PACKAGE_luci-app-diskman=y #磁盘管理磁盘信息
-CONFIG_PACKAGE_luci-app-transmission=y #Transmission离线下载
-CONFIG_PACKAGE_luci-app-qbittorrent=y #qBittorrent离线下载
+CONFIG_PACKAGE_luci-app-haproxy-tcp=n #Haproxy负载均衡
+CONFIG_PACKAGE_luci-app-diskman=n #磁盘管理磁盘信息
+CONFIG_PACKAGE_luci-app-transmission=n #Transmission离线下载
+CONFIG_PACKAGE_luci-app-qbittorrent=n #qBittorrent离线下载
 CONFIG_PACKAGE_luci-app-amule=y #电驴离线下载
 CONFIG_PACKAGE_luci-app-xlnetacc=y #迅雷快鸟
-CONFIG_PACKAGE_luci-app-zerotier=y #zerotier内网穿透
+CONFIG_PACKAGE_luci-app-zerotier=n #zerotier内网穿透
 CONFIG_PACKAGE_luci-app-hd-idle=y #磁盘休眠
-CONFIG_PACKAGE_luci-app-unblockmusic=y #解锁网易云灰色歌曲
+CONFIG_PACKAGE_luci-app-unblockmusic=n #解锁网易云灰色歌曲
 CONFIG_PACKAGE_luci-app-airplay2=y #Apple AirPlay2音频接收服务器
 CONFIG_PACKAGE_luci-app-music-remote-center=y #PCHiFi数字转盘遥控
 CONFIG_PACKAGE_luci-app-usb-printer=y #USB打印机
-CONFIG_PACKAGE_luci-app-sqm=y #SQM智能队列管理
+CONFIG_PACKAGE_luci-app-sqm=n #SQM智能队列管理
 CONFIG_PACKAGE_luci-app-jd-dailybonus=y #京东签到服务
-CONFIG_PACKAGE_luci-app-uugamebooster=y #UU游戏加速器
+CONFIG_PACKAGE_luci-app-uugamebooster=n #UU游戏加速器
 #
 # VPN相关插件(禁用):
 #
-CONFIG_PACKAGE_luci-app-v2ray-server=y #V2ray服务器
-CONFIG_PACKAGE_luci-app-pptp-server=y #PPTP VPN 服务器
-CONFIG_PACKAGE_luci-app-ipsec-vpnd=y #ipsec VPN服务
-CONFIG_PACKAGE_luci-app-openvpn-server=y #openvpn服务
-CONFIG_PACKAGE_luci-app-softethervpn=y #SoftEtherVPN服务器
+CONFIG_PACKAGE_luci-app-v2ray-server=n #V2ray服务器
+CONFIG_PACKAGE_luci-app-pptp-server=n #PPTP VPN 服务器
+CONFIG_PACKAGE_luci-app-ipsec-vpnd=n #ipsec VPN服务
+CONFIG_PACKAGE_luci-app-openvpn-server=n #openvpn服务
+CONFIG_PACKAGE_luci-app-softethervpn=n #SoftEtherVPN服务器
 #
 # 文件共享相关(禁用):
 #
 CONFIG_PACKAGE_luci-app-minidlna=y #miniDLNA服务
 CONFIG_PACKAGE_luci-app-vsftpd=y #FTP 服务器
 CONFIG_PACKAGE_luci-app-samba=y #网络共享
-CONFIG_PACKAGE_autosamba=y #网络共享
-CONFIG_PACKAGE_samba36-server=y #网络共享
+CONFIG_PACKAGE_autosamba=n #网络共享
+CONFIG_PACKAGE_samba36-server=n #网络共享
 EOF
 
 # LuCI主题:
@@ -251,9 +251,9 @@ cat >> .config <<EOF
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_htop=y
 CONFIG_PACKAGE_nano=y
-CONFIG_PACKAGE_screen=y
-CONFIG_PACKAGE_tree=y
-CONFIG_PACKAGE_vim-fuller=y
+# CONFIG_PACKAGE_screen=y
+# CONFIG_PACKAGE_tree=y
+# CONFIG_PACKAGE_vim-fuller=y
 CONFIG_PACKAGE_wget=y
 CONFIG_PACKAGE_bash=y
 CONFIG_PACKAGE_node=y
