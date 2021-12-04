@@ -1,3 +1,20 @@
+Skip to content
+db-one
+/
+OpenWrt-AutoBuild
+Public
+Code
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+OpenWrt-AutoBuild/.github/workflows/OpenWrt-Actions.yml
+@db-one
+db-one Update
+ 1 contributor
+377 lines (312 sloc)  14.8 KB
 #
 #
 # 感谢p3terx大神的一键编译脚本
@@ -59,6 +76,7 @@ jobs:
         echo "CONFIG_FILE=${CONFIG_FILE}" >> $GITHUB_ENV
         echo "FIRMWARE_MESSAGE=${FIRMWARE_MESSAGE}" >> $GITHUB_ENV
         echo "CUSTOM_SH=${CUSTOM_SH}" >> $GITHUB_ENV
+        echo "CACHE_BUILD=${CACHE_BUILD}" >> $GITHUB_ENV
         echo "SSH_ACTIONS=${SSH_ACTIONS}" >> $GITHUB_ENV
         echo "UPLOAD_FIRMWARE=${UPLOAD_FIRMWARE}" >> $GITHUB_ENV
         echo "UPLOAD_QCOW2=${UPLOAD_QCOW2}" >> $GITHUB_ENV
@@ -74,7 +92,6 @@ jobs:
         #添加变量
         echo "HOME=${GITHUB_WORKSPACE}/openwrt" >> $GITHUB_ENV
         echo "WORKPATH=${GITHUB_WORKSPACE}/openwrt/build/${{matrix.target}}" >> $GITHUB_ENV
-
     - name: 初始化系统环境
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -86,22 +103,19 @@ jobs:
         sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig libc6-dev-i386 libc6-dev libncurses5 libtinfo-dev libtinfo5 ncurses-doc python2.7 git-core wget curl rsync
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
-
         df -hT
-
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-
     - name: 下载${{matrix.target}}源码
       working-directory: /workdir
       run: |
         df -hT $PWD
         git clone -b $REPO_BRANCH --single-branch $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-
     - name: 缓存加速
       uses: klever1988/cachewrtbuild@main
+      if: env.CACHE_BUILD == 'true'
       with:
         ccache: 'true'
         prefix: ${{ github.workspace }}/openwrt
@@ -117,13 +131,11 @@ jobs:
         echo "编译开始时间..."
         START_TIME=`date +'%Y-%m-%d %H:%M:%S'`
         echo "START_SECONDS=$(date --date="$START_TIME" +%s)" >> $GITHUB_ENV
-
     - name: 加载源,定制文件并生成自定义配置
       run: |
         # 复制配置文件到源码目录
         cp -Rf `find ./ -maxdepth 1 -type d ! -path './openwrt' ! -path './'` openwrt
         cd openwrt
-
         echo "执行脚本"
         if [ -f "${WORKPATH}/$CUSTOM_SH" ]; then
         (
@@ -131,7 +143,6 @@ jobs:
           /bin/bash "${WORKPATH}/$CUSTOM_SH"
         )
         fi
-
         echo "复制文件..."
         if [ -n "$(ls -A "${WORKPATH}/files" 2>/dev/null)" ]; then
          cp -rf ${WORKPATH}/files files
@@ -140,27 +151,23 @@ jobs:
         if [ -n "$(ls -A "${WORKPATH}/sources" 2>/dev/null)" ]; then
          cp -Rf ${WORKPATH}/sources/* ./
         fi
-
         echo "写入配置文件..."
         mv ${WORKPATH}/$CONFIG_FILE .config
         make defconfig
-
-# - name: SSH远程连接服务器
-# uses: P3TERX/ssh2actions@v1.0.0
-# if: env.SSH_ACTIONS == 'true' || (github.event.inputs.ssh == 'ssh' && github.event.inputs.ssh  != 'false')
-# env:
-# TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-# TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    - name: SSH远程连接服务器
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: env.SSH_ACTIONS == 'true' || (github.event.inputs.ssh == 'ssh' && github.event.inputs.ssh  != 'false')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
     - name: 输出编译信息
       run: |
         cd openwrt
         echo " 系统空间      类型   总数  已用  可用 使用率"
         df -hT $PWD
-
         echo
         echo "=========================================="
-
         grep -i CONFIG_PACKAGE_luci-app .config | grep  -v \# > Plug-in
         grep -i CONFIG_PACKAGE_luci-theme .config | grep  -v \# >> Plug-in
         sed -i '/INCLUDE/d' Plug-in > /dev/null 2>&1
@@ -169,36 +176,30 @@ jobs:
         sed -i 's/=y/\ /g' Plug-in
         awk '$0=NR$0' Plug-in > Plug-2
         awk '{print "	" $0}' Plug-2 > Plug-in
-
         echo
         echo
         echo "	      已选插件列表"
         cat Plug-in
         rm -rf {Plug-in,Plug-2}
-
         echo
         echo "=========================================="
-
         echo
         echo
         echo "输出完整插件信息..."
         echo
         echo
         cat .config
-
     - name: 下载固件包
       run: |
         cd openwrt && make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
     - name: 开始编译固件
       id: compile
       run: |
         cd openwrt
         echo -e "$(($(nproc)+1)) thread compile"
         make -j$(($(nproc)+1)) || make -j1 V=s
-
     - name: 检查空间使用情况
       run: |
         echo "======================="
@@ -209,7 +210,6 @@ jobs:
         du -h --max-depth=1 openwrt/ --exclude=build_dir --exclude=bin
         du -h --max-depth=1 openwrt/build_dir
         du -h --max-depth=1 openwrt/bin
-
     - name: 整理固件文件
       id: organizer
       run: |
@@ -235,7 +235,6 @@ jobs:
         SECONDS=$((END_SECONDS-START_SECONDS))
         HOUR=$(( $SECONDS/3600 )) && MIN=$(( ($SECONDS-${HOUR}*3600)/60 )) && SEC=$(( $SECONDS-${HOUR}*3600-${MIN}*60 ))
         echo "BUILD_TIME=${HOUR}时${MIN}分${SEC}秒" >> $GITHUB_ENV
-
     - name: 上传固件文件
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       uses: actions/upload-artifact@v2
@@ -285,7 +284,6 @@ jobs:
         ./transfer cow --block 2621440 -s -p 64 --no-progress ./artifact/firmware/ 2>&1 | tee cowtransfer.log
         sed -i "s/Download Link/奶牛快传/g" cowtransfer.log
         echo "::warning file=奶牛快传::$(cat cowtransfer.log | grep https)"
-
     - name: 上传固件到 WeTransfer
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true'
       run: |
@@ -293,7 +291,6 @@ jobs:
         ./transfer wet -s -p 16 --no-progress ./artifact/firmware/ 2>&1 | tee wetransfer.log
         sed -i "s/Download Link/WeTransfer/g" wetransfer.log
         echo "::warning file=WeTransfer::$(cat wetransfer.log | grep https)"
-
     - name: 提取发布用的「奶牛快传」和「WeTransfer」的链接
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'
       run: |
@@ -303,7 +300,6 @@ jobs:
         curl -fsSL git.io/file-transfer | sh
         ./transfer wet -s -p 16 --no-progress ./artifact/firmware/ 2>&1 | tee wetransfer.log
         echo "WETRANSFER_URL=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_ENV 
-
     - name: 自动发布固件到 Releases
       uses: ncipollo/release-action@v1
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'
@@ -315,23 +311,14 @@ jobs:
             ★  源码 : ${{ env.REPO_URL }}
             ★  分支 : ${{ env.REPO_BRANCH }}
             ★  感谢源码作者无私分享！
-
             🎈 编译时间：${{ env.FILE_TIME1 }}
-
             ⏰ 编译用时：${{ env.BUILD_TIME }}
-
             🎉 [ ${{ env.FIRMWARE_MESSAGE }} ]固件下载
-
             ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
-
             ➤ 奶牛快传： ${{ env.COWTRANSFER_URL }}
-
             ➤ WeTransfer： ${{ env.WETRANSFER_URL }}
-
                WeTransfer链接有效期为7天，奶牛快传为24小时，无需注册直接下载
-
             =========================================
-
         artifacts: ./artifact/firmware/*
 
     - name: 删除运行记录
@@ -353,23 +340,26 @@ jobs:
       if: steps.organizer.outputs.status == 'success' && env.WECHAT_WORK_PUSH == 'true'
       run: |
         curl "http://${{ secrets.WECHAT_WORK_URL }}/push?token=${{ secrets.WECHAT_WORK_TOKEN }}&message=您的${{ env.FIRMWARE_MESSAGE }}固件成功编译完成了！%0a%0a🎈编译时间：${{ env.FILE_TIME1 }}%0a%0a⏰编译用时：${{ env.BUILD_TIME }}%0a%0a🎉发布地址：${{ env.GITHUB_RELEASE }}%0a%0a💐奶牛快传：${{ env.COWTRANSFER_URL }}%0a%0a⛄WeTransfer：${{ env.WETRANSFER_URL }}%0a%0a🌴固件已经编译完成🎈！！！" || true
-
     - name: 编译成功信息通知-Telegram
       if: steps.organizer.outputs.status == 'success' && env.TELEGRAM_BOT == 'true'
       run: |
         curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=您的${{ env.FIRMWARE_MESSAGE }}固件成功编译完成了！
-
           🎈 编译时间：${{ env.FILE_TIME1 }}
-
           ⏰ 编译用时：${{ env.BUILD_TIME }}
-
           🎉 发布地址：${{ env.GITHUB_RELEASE }}
-
           💐 奶牛快传：${{ env.COWTRANSFER_URL }}
-
           ⛄ WeTransfer：${{ env.WETRANSFER_URL }}
-
           🌴 固件已经编译完成 🎈！！！" >/dev/null 2>&1 && echo "ok..."
-
-
-
+© 2021 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Loading complete
