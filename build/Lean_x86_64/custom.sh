@@ -12,6 +12,16 @@ cat feeds.conf.default
 git clone https://github.com/db-one/dbone-packages.git -b 18.06 package/dbone-packages
 git clone https://github.com/linkease/istore.git -b 18.06 package/dbone-packages
 
+# 自定义插件主题。
+run: |
+  cd package
+  mkdir openwrt-packages
+  cd openwrt-packages
+  git clone https://github.com/openwrt-develop/luci-theme-atmaterial.git
+  git clone https://github.com/Ameykyl/luci-app-koolproxyR
+  git clone https://github.com/rosywrt/luci-theme-rosy
+  git clone https://github.com/souwei168/luci-app-store.git
+
 # 更新并安装源
 ./scripts/feeds clean
 ./scripts/feeds update -a && ./scripts/feeds install -a
